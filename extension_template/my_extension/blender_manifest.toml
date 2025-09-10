@@ -1,0 +1,43 @@
+schema_version = "1.0.0"
+
+id = "blurr_hdri"  # TO CHANGE
+version = "0.0.1"
+name = "Blurr HDRI" # TO CHANGE
+tagline = "Blurr HDRI Images by creating a new node with a Gaussian Blur" # TO CHANGE
+maintainer = "Jan-Hendrik Müller<jan-hendrik.mueller@uni-goettingen.de>"
+license = [
+	"SPDX:GPL-3.0-or-later",
+]
+
+type = "add-on"
+website = "https://github.com/kolibril13/blender_my_extension"  # TO CHANGE
+platforms = [
+	"windows-x64",
+	"linux-x64",
+	"macos-arm64",
+	"macos-x64",
+]
+
+# https://docs.blender.org/manual/en/latest/advanced/extensions/tags.html
+# All available tags: 3D View, Add Curve, Add Mesh, Animation, Bake, Camera, Compositing, Development, Game Engine, Geometry Nodes, Grease Pencil, Import-Export, Lighting, Material, Modeling, Mesh, Node, Object, Paint, Pipeline, Physics, Render, Rigging, Scene, Sculpt, Sequencer, System, Text Editor, Tracking, User Interface, UV
+tags = [  # TO CHANGE
+	"Material",
+	"Lighting",
+]
+blender_version_min = "4.5.0"
+
+copyright = [
+	"2025 Jan-Hendrik Müller", # TO CHANGE
+]
+
+[permissions]
+files = "Importing data files from disk"
+
+# make sure only __init__.py and wheels/ are included.
+
+[build]
+paths_exclude_pattern = [
+	".gitignore",    # Exclude gitignore
+	"*.zip",         # Exclude *.zip
+	"*__pycache__/", # Exclude /__pycache__ folder
+]
