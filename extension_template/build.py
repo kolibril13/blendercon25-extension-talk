@@ -14,7 +14,7 @@ import bpy
 
 
 
-ADDON_NAME = "my_extension" # TO CHANGE
+ADDON_NAME = "blurr_hdri" # TO CHANGE
 TOML_PATH = f"./{ADDON_NAME}/blender_manifest.toml"
 WHL_PATH = f"./{ADDON_NAME}/wheels"
 
