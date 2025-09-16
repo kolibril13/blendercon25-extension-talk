@@ -1,0 +1,188 @@
+# Blender Extension Rules
+
+do **not** modify the collection you're looping over
+
+```py
+import bpy
+ 
+# Deselect all selected objects that have '.00' in their name.
+for ob in bpy.context.selected_objects:
+    if '.00' not in ob.name:
+        continue
+ 
+    ob.select_set(False)
+```
+
+
+
+# Blender Node Trees Cursor Rule
+
+## Context 
+You are working with Blender's node system, which is used for materials, compositing, geometry nodes, and world shaders. 
+Node trees are hierarchical structures where nodes are connected via links to create complex effects.
+
+## My Custom Instructions
+- Don't be overly verbose in the code.
+
+## Key Concepts
+
+### Node Tree Types
+- **Material Nodes**: For shader materials (BSDF, emission, etc.)
+- **World Nodes**: For environment lighting and backgrounds
+- **Compositor Nodes**: For post-processing effects
+- **Geometry Nodes**: For procedural geometry modification
+- **Texture Nodes**: For texture manipulation
+
+### Common Node Tree Operations
+```python
+# Access node trees
+material = bpy.data.materials["Material"]
+node_tree = material.node_tree
+
+world = bpy.context.scene.world
+world_node_tree = world.node_tree
+
+# Node operations
+nodes = node_tree.nodes
+links = node_tree.links
+
+# Selection and active nodes
+selected_nodes = [node for node in nodes if node.select]
+active_node = nodes.active
+
+# Create nodes
+new_node = nodes.new(type='ShaderNodeBsdfPrincipled')
+new_node.location = (0, 0)
+
+# Create links
+node_tree.links.new(node1.outputs[0], node2.inputs[0])
+
+# Remove nodes/links
+nodes.remove(node)
+links.remove(link)
+```
+
+### Important Node Properties
+- `location`: (x, y) position in node editor
+- `select`: Boolean for selection state
+- `inputs`/`outputs`: Socket collections
+- `type`: Node type identifier
+- `name`: Node name
+- `label`: Display label
+
+### Socket Types
+- **Input Sockets**: Receive data from other nodes
+- **Output Sockets**: Send data to other nodes
+- **Socket Types**: Vector, Color, Float, Shader, Geometry, etc.
+
+### Best Practices
+1. Always check if node tree exists before accessing
+2. Use descriptive names for nodes when creating them
+3. Handle node selection carefully — only one node can be active
+4. Clean up unused nodes to avoid clutter
+5. Use node groups for reusable functionality
+6. Consider performance when working with many nodes
+
+### Common Patterns
+```python
+# Safe node tree access
+if bpy.context.scene.world and bpy.context.scene.world.node_tree:
+    node_tree = bpy.context.scene.world.node_tree
+    # Work with nodes...
+
+# Find nodes by type
+bsdf_nodes = [node for node in nodes if node.type == 'BSDF_PRINCIPLED']
+
+# Find nodes by name
+texture_node = nodes.get("Image Texture")
+
+# Connect nodes safely
+if node1.outputs and node2.inputs:
+    node_tree.links.new(node1.outputs[0], node2.inputs[0])
+```
+
+## Code Style
+- Use clear variable names for nodes and links
+- Comment complex node setups
+- Group related node operations together
+- Handle edge cases (missing nodes, invalid connections)
+
+---
+
+# Blender Operator Rule
+
+## Context 
+Operators are Blender’s way of encapsulating actions. They can be triggered from the search menu, UI panels, or Python API calls. 
+Wrapping your script in a custom operator makes it reusable and easier to integrate into Blender.
+
+## Rules for Building a Custom Blender Operator
+
+### 1. Define the Operator Class
+- Inherit from `bpy.types.Operator`.
+- Give it a unique `bl_idname` (`"category.name"`) and a descriptive `bl_label`.
+
+```python
+class OBJECT_OT_my_operator(bpy.types.Operator):
+    bl_idname = "object.my_operator"
+    bl_label = "My Operator"
+```
+
+### 2. Implement the `execute` Method
+- Place the main logic of your script inside `def execute(self, context)`.
+- Always return `{'FINISHED'}` or `{'CANCELLED'}`.
+
+```python
+def execute(self, context):
+    # your script logic here
+    return {'FINISHED'}
+```
+
+### 3. Add Properties (Optional)
+- Use `bpy.props` if your script needs user input.
+- Define them as class attributes.
+
+```python
+my_string: bpy.props.StringProperty(name="Name", default="Cube")
+```
+
+### 4. Keep Context in Mind
+- Use `context` for objects, selections, active data, etc.
+- Avoid hard-coded calls to `bpy.context` inside the operator if possible.
+
+### 5. Register and Unregister
+- Always wrap your operator in `register` and `unregister` functions.
+- Use `bpy.utils.register_class` / `unregister_class`.
+
+```python
+def register():
+    bpy.utils.register_class(OBJECT_OT_my_operator)
+
+def unregister():
+    bpy.utils.unregister_class(OBJECT_OT_my_operator)
+```
+
+### 6. Test in Blender
+- Run your script in Blender’s Scripting editor.
+- Call the operator from:
+  - The search menu (`F3`, type your label)
+  - A shortcut (`bpy.ops.object.my_operator()`)
+  - A button/panel if you add one.
+
+### 7. Naming Rules
+- `bl_idname`: all lowercase, words separated by `_`, with a dot separating category and name.
+- `bl_label`: readable name shown in the UI.
+
+### 8. Keep Operators Simple
+- One operator = one clear action.
+- Chain multiple steps inside, but avoid mixing unrelated tasks.
+
+### 9. UI Integration (Optional)
+- Add buttons for your operator in a panel (`bpy.types.Panel`).
+- Use `layout.operator("object.my_operator")`.
+
+### 10. Follow Blender’s Undo & Poll Rules
+- If your operator changes data, support undo by setting:
+  ```python
+  bl_options = {'REGISTER', 'UNDO'}
+  ```
+- Define `@classmethod def poll(cls, context)` if it should only run in certain conditions.
